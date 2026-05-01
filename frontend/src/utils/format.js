@@ -3,3 +3,7 @@ export const formatMoney = (value) =>
     style: "currency",
     currency: "BRL",
   });
+
+export const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleDateString("pt-BR");
+};

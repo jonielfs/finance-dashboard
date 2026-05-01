@@ -166,7 +166,7 @@ npm run dev
 
 ## 📌 Versão
 
-Versão atual: **1.0.1**
+Versão atual: **1.0.2**
 
 ---
 

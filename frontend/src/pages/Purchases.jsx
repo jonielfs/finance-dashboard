@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../services/api";
 import Header from "../components/Header";
-import { formatMoney } from "../utils/format";
+import { formatMoney, formatDate } from "../utils/format";
 
 export default function Purchases({ onLogout, setPage, page }) {
   const [purchases, setPurchases] = useState([]);
@@ -230,7 +230,8 @@ export default function Purchases({ onLogout, setPage, page }) {
 
                 <div style={styles.meta}>
                   {formatMoney(p.totalAmount)} • {p.installments}x de{" "}
-                  {formatMoney(p.totalAmount / p.installments)}
+                  {formatMoney(p.totalAmount / p.installments)} • {" data referência parcela  "}
+                  { formatDate(p.purchaseDate) }
                 </div>
               </div>
 
