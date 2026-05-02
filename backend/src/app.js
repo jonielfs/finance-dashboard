@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
+const cookieParser = require("cookie-parser");
 
 const authRoutes = require("./routes/authRoutes");
 const authMiddleware = require("./middlewares/authMiddleware");
@@ -47,6 +48,8 @@ app.use(cors({
 
 // 📦 Body parser
 app.use(express.json());
+
+app.use(cookieParser());
 
 // 🔓 Rotas públicas
 app.use("/auth", authRoutes);

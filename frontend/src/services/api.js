@@ -1,13 +1,11 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const apiFetch = async (endpoint, options = {}) => {
-  const token = localStorage.getItem("token");
-
   const res = await fetch(`${API_URL}${endpoint}`, {
     ...options,
+    credentials: "include", // 🔥 ESSENCIAL para enviar o cookie
     headers: {
       "Content-Type": "application/json",
-      Authorization: token ? `Bearer ${token}` : "",
       ...(options.headers || {}),
     },
   });
@@ -17,7 +15,7 @@ export const apiFetch = async (endpoint, options = {}) => {
   try {
     data = await res.json();
   } catch {
-    // resposta sem JSON
+    // resposta sem JSON (ex: 204 No Content)
   }
 
   if (!res.ok) {

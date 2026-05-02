@@ -71,7 +71,22 @@ exports.login = async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    res.json({ token });
+    const isProduction =
+      process.env.COOKIE_SECURE === "true" ||
+      req.secure ||
+      req.headers["x-forwarded-proto"] === "https";
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      maxAge: 1000 * 60 * 60 * 12,
+    });
+
+    res.json({
+      message: "Login realizado com sucesso",
+      token, // 👈 mantém temporariamente (compatibilidade)
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -79,4 +94,16 @@ exports.login = async (req, res) => {
       detail: error.message,
     });
   }
+};
+
+exports.logout = (req, res) => {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+  });
+
+  res.json({ message: "Logout realizado com sucesso" });
 };

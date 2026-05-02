@@ -23,26 +23,22 @@ const styles = {
     margin: "0 auto",
     boxSizing: "border-box",
   },
-
   headerSpacing: {
     marginBottom: "clamp(12px, 3vw, 20px)",
   },
-
   cardGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
     gap: "clamp(10px, 3vw, 16px)",
     marginBottom: "clamp(16px, 4vw, 24px)",
   },
-
   chartCard: {
     backgroundColor: "#fff",
     padding: "clamp(12px, 3vw, 20px)",
     borderRadius: "12px",
     boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-    overflowX: "auto", // 🔥 importante pra mobile
+    overflowX: "auto",
   },
-
   alert: (isOver) => ({
     padding: "clamp(10px, 3vw, 14px)",
     borderRadius: "10px",
@@ -62,9 +58,17 @@ const styles = {
 function App() {
   const [data, setData] = useState([]);
   const [rawData, setRawData] = useState(null);
-  const [isAuth, setIsAuth] = useState(!!localStorage.getItem("token"));
+  const [isAuth, setIsAuth] = useState(null); // 🔥 agora controlado via backend
   const [page, setPage] = useState("dashboard");
 
+  // 🔐 valida sessão no carregamento
+  useEffect(() => {
+    apiFetch("/protected")
+      .then(() => setIsAuth(true))
+      .catch(() => setIsAuth(false));
+  }, []);
+
+  // 📊 carrega dashboard apenas se autenticado
   useEffect(() => {
     if (!isAuth) return;
 
@@ -72,7 +76,6 @@ function App() {
       setRawData(json);
 
       const totalsArray = json.totals.map((v) => Number(v) || 0);
-
       const windowSize = 3;
 
       const movingAvg = totalsArray.map((_, index) => {
@@ -108,12 +111,25 @@ function App() {
     });
   }, [isAuth, page]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.reload();
+  // 🚪 logout via backend
+  const handleLogout = async () => {
+    try {
+      await apiFetch("/auth/logout", { method: "POST" });
+    } catch {}
+
+    setIsAuth(false); // 👈 evita reload
   };
 
-  // 🔐 Auth flow (mantido)
+  // ⏳ loading inicial
+  if (isAuth === null) {
+    return (
+      <div style={styles.container}>
+        <Skeleton />
+      </div>
+    );
+  }
+
+  // 🔐 não autenticado
   if (!isAuth) {
     if (page === "register") {
       return <Register setPage={setPage} />;
@@ -121,10 +137,7 @@ function App() {
     return <Login setPage={setPage} />;
   }
 
-  if (page === "register") {
-    return <Register onLogout={handleLogout} />;
-  }
-
+  // 📄 rotas
   if (page === "cards") {
     return <Cards onLogout={handleLogout} setPage={setPage} page={page} />;
   }
@@ -141,7 +154,7 @@ function App() {
     return <Purchases onLogout={handleLogout} setPage={setPage} page={page} />;
   }
 
-  // 📊 Dashboard
+  // 📊 dashboard
   if (page === "dashboard") {
     if (!rawData) {
       return (
@@ -173,23 +186,14 @@ function App() {
       0
     ).getDate();
 
-    const avgDaily = dayOfMonth > 0
-      ? currentMonth / dayOfMonth
-      : 0;
-
+    const avgDaily = dayOfMonth > 0 ? currentMonth / dayOfMonth : 0;
     const idealDaily = goal > 0 ? goal / daysInMonth : 0;
 
     const isAboveIdeal = avgDaily > idealDaily;
-
     const avgColor = isAboveIdeal ? "#dc2626" : "#16a34a";
 
     const open = rawData.commitments.reduce((sum, v) => sum + v, 0);
-
     const isOver = goal > 0 && currentMonth > goal;
-
-    const monthColor = "#2563eb";
-    const goalColor = "#dc2626";
-    const openColor = "#d97706";
 
     return (
       <div style={styles.container}>
@@ -200,38 +204,13 @@ function App() {
           page={page}
         />
 
-        {/* 📦 Cards */}
         <div style={styles.cardGrid}>
-          <MetricCard
-            title="Gasto do mês"
-            value={currentMonth}
-            color={monthColor}
-            tooltip="Soma das faturas do mês atual"
-          />
-
-          <MetricCard
-            title="Meta"
-            value={goal}
-            color={goalColor}
-            tooltip="Valor máximo planejado para gasto mensal"
-          />
-
-          <MetricCard
-            title="Parcelas (próx. meses)"
-            value={open}
-            color={openColor}
-            tooltip="Soma das parcelas dentro do período exibido no gráfico"
-          />
-
-          <MetricCard
-            title="Média diária"
-            value={Math.round(avgDaily)}
-            color={avgColor}
-            tooltip={`Gasto médio por dia. Ideal: ${formatMoney(idealDaily)}`}
-          />
+          <MetricCard title="Gasto do mês" value={currentMonth} color="#2563eb" />
+          <MetricCard title="Meta" value={goal} color="#dc2626" />
+          <MetricCard title="Parcelas (próx. meses)" value={open} color="#d97706" />
+          <MetricCard title="Média diária" value={Math.round(avgDaily)} color={avgColor} />
         </div>
 
-        {/* 🚨 Alert */}
         <div style={styles.alert(isOver)}>
           <span>{isOver ? "⚠️" : "✅"}</span>
           <span>
@@ -241,7 +220,6 @@ function App() {
           </span>
         </div>
 
-        {/* 📊 Chart */}
         <div style={styles.chartCard}>
           <DashboardChart data={data} />
         </div>
@@ -249,17 +227,7 @@ function App() {
     );
   }
 
-  return (
-    <div style={styles.container}>
-      <Header
-        title="Dashboard Financeiro"
-        onLogout={handleLogout}
-        onNavigate={setPage}
-        page={page}
-      />
-      <p>Carregando...</p>
-    </div>
-  );
+  return null;
 }
 
 export default App;

@@ -132,7 +132,7 @@ npm run dev
 
 * Frontend: Vercel
 * Backend: Render
-* Banco: Supabase / Neon
+* Banco: Supabase
 
 ---
 
@@ -166,7 +166,7 @@ npm run dev
 
 ## 📌 Versão
 
-Versão atual: **1.0.4**
+Versão atual: **1.0.5**
 
 ---
 
