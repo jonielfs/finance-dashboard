@@ -13,6 +13,52 @@ import Invoices from "./pages/Invoices";
 import Goal from "./pages/Goal";
 import Purchases from "./pages/Purchases";
 
+// 🎨 styles mobile-first
+const styles = {
+  container: {
+    backgroundColor: "#f3f4f6",
+    minHeight: "100vh",
+    padding: "clamp(12px, 4vw, 24px)",
+    maxWidth: "1200px",
+    margin: "0 auto",
+    boxSizing: "border-box",
+  },
+
+  headerSpacing: {
+    marginBottom: "clamp(12px, 3vw, 20px)",
+  },
+
+  cardGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+    gap: "clamp(10px, 3vw, 16px)",
+    marginBottom: "clamp(16px, 4vw, 24px)",
+  },
+
+  chartCard: {
+    backgroundColor: "#fff",
+    padding: "clamp(12px, 3vw, 20px)",
+    borderRadius: "12px",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    overflowX: "auto", // 🔥 importante pra mobile
+  },
+
+  alert: (isOver) => ({
+    padding: "clamp(10px, 3vw, 14px)",
+    borderRadius: "10px",
+    backgroundColor: isOver ? "#fee2e2" : "#dcfce7",
+    color: isOver ? "#991b1b" : "#166534",
+    marginBottom: "clamp(12px, 3vw, 20px)",
+    fontWeight: "500",
+    fontSize: "clamp(13px, 3.5vw, 15px)",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+    flexWrap: "wrap",
+  }),
+};
+
 function App() {
   const [data, setData] = useState([]);
   const [rawData, setRawData] = useState(null);
@@ -25,10 +71,8 @@ function App() {
     apiFetch("/dashboard/history").then((json) => {
       setRawData(json);
 
-      // 🔢 Totais convertidos
       const totalsArray = json.totals.map((v) => Number(v) || 0);
 
-      // 📊 Média móvel (últimos 3 meses)
       const windowSize = 3;
 
       const movingAvg = totalsArray.map((_, index) => {
@@ -44,7 +88,6 @@ function App() {
         return Number(avg.toFixed(2));
       });
 
-      // 📦 Formatação final
       const formatted = json.months.map((month, index) => {
         const [year, m] = month.split("-");
 
@@ -70,11 +113,11 @@ function App() {
     window.location.reload();
   };
 
+  // 🔐 Auth flow (mantido)
   if (!isAuth) {
     if (page === "register") {
       return <Register setPage={setPage} />;
     }
-
     return <Login setPage={setPage} />;
   }
 
@@ -83,46 +126,22 @@ function App() {
   }
 
   if (page === "cards") {
-    return (
-      <Cards
-        onLogout={handleLogout}
-        setPage={setPage}
-        page={page}
-      />
-    );
+    return <Cards onLogout={handleLogout} setPage={setPage} page={page} />;
   }
 
   if (page === "invoices") {
-    return (
-      <Invoices
-        onLogout={handleLogout}
-        setPage={setPage}
-        page={page}
-      />
-    );
+    return <Invoices onLogout={handleLogout} setPage={setPage} page={page} />;
   }
 
   if (page === "goal") {
-    return (
-      <Goal
-        onLogout={handleLogout}
-        setPage={setPage}
-        page={page}
-      />
-    );
+    return <Goal onLogout={handleLogout} setPage={setPage} page={page} />;
   }
 
   if (page === "purchases") {
-    return (
-      <Purchases
-        onLogout={handleLogout}
-        setPage={setPage}
-        page={page}
-      />
-    );
+    return <Purchases onLogout={handleLogout} setPage={setPage} page={page} />;
   }
 
-  // 📄 Dashboard
+  // 📊 Dashboard
   if (page === "dashboard") {
     if (!rawData) {
       return (
@@ -162,13 +181,10 @@ function App() {
 
     const isAboveIdeal = avgDaily > idealDaily;
 
-    const avgColor = isAboveIdeal
-      ? "#dc2626"
-      : "#16a34a";
+    const avgColor = isAboveIdeal ? "#dc2626" : "#16a34a";
 
     const open = rawData.commitments.reduce((sum, v) => sum + v, 0);
 
-    // ✅ NOVA LÓGICA (sem projeção)
     const isOver = goal > 0 && currentMonth > goal;
 
     const monthColor = "#2563eb";
@@ -184,7 +200,7 @@ function App() {
           page={page}
         />
 
-        {/* Cards */}
+        {/* 📦 Cards */}
         <div style={styles.cardGrid}>
           <MetricCard
             title="Gasto do mês"
@@ -215,7 +231,7 @@ function App() {
           />
         </div>
 
-        {/* Mensagem */}
+        {/* 🚨 Alert */}
         <div style={styles.alert(isOver)}>
           <span>{isOver ? "⚠️" : "✅"}</span>
           <span>
@@ -225,7 +241,7 @@ function App() {
           </span>
         </div>
 
-        {/* Gráfico */}
+        {/* 📊 Chart */}
         <div style={styles.chartCard}>
           <DashboardChart data={data} />
         </div>
@@ -247,37 +263,3 @@ function App() {
 }
 
 export default App;
-
-const styles = {
-  container: {
-    backgroundColor: "#f3f4f6",
-    minHeight: "100vh",
-    padding: "20px",
-    maxWidth: "1200px",
-    margin: "0 auto",
-  },
-  cardGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-    gap: "16px",
-    marginBottom: "20px",
-  },
-  chartCard: {
-    backgroundColor: "#fff",
-    padding: "20px",
-    borderRadius: "12px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-  },
-  alert: (isOver) => ({
-    padding: "12px 16px",
-    borderRadius: "10px",
-    backgroundColor: isOver ? "#fee2e2" : "#dcfce7",
-    color: isOver ? "#991b1b" : "#166534",
-    marginBottom: "20px",
-    fontWeight: "500",
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-  }),
-}

@@ -18,20 +18,20 @@ export default function Purchases({ onLogout, setPage, page }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // 💰 máscara BRL
+  const isMobile = window.innerWidth < 640;
+
   const handleCurrencyChange = (value, setter) => {
     let v = value.replace(/\D/g, "");
     const number = Number(v) / 100;
 
-    const formatted = number.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
-
-    setter(formatted);
+    setter(
+      number.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      })
+    );
   };
 
-  // 💰 parse moeda
   const parseCurrency = (value) =>
     Number(
       value
@@ -41,7 +41,6 @@ export default function Purchases({ onLogout, setPage, page }) {
         .trim()
     );
 
-  // 📅 máscara data
   const handleDateChange = (value) => {
     let v = value.replace(/\D/g, "");
 
@@ -51,16 +50,12 @@ export default function Purchases({ onLogout, setPage, page }) {
     setForm({ ...form, purchaseDate: v.slice(0, 10) });
   };
 
-  // 📅 parse data
   const parseDate = (dateStr) => {
     if (!dateStr) return new Date();
-
     const [day, month, year] = dateStr.split("/");
-
     return new Date(`${year}-${month}-${day}T00:00:00`);
   };
 
-  // 🔹 carregar dados
   const load = async () => {
     try {
       const [purchasesData, cardsData] = await Promise.all([
@@ -80,7 +75,6 @@ export default function Purchases({ onLogout, setPage, page }) {
     load();
   }, []);
 
-  // ➕ criar compra
   const handleCreate = async () => {
     setError("");
 
@@ -120,40 +114,33 @@ export default function Purchases({ onLogout, setPage, page }) {
     }
   };
 
-  // ❌ deletar
   const handleDelete = async (id) => {
     if (!confirm("Deseja excluir esta compra?")) return;
 
-    setError("");
-
     try {
-      await apiFetch(`/purchases/${id}`, {
-        method: "DELETE",
-      });
-
+      await apiFetch(`/purchases/${id}`, { method: "DELETE" });
       load();
     } catch (err) {
-      console.error(err);
-      setError(err?.message || "Erro ao deletar compra");
+      setError("Erro ao deletar compra");
     }
   };
 
   return (
     <div style={styles.container}>
-      <Header
-        title="Compras"
-        onLogout={onLogout}
-        onNavigate={setPage}
-        page={page}
-      />
+      <Header title="Compras" onLogout={onLogout} onNavigate={setPage} page={page} />
 
-      {/* ➕ Nova compra */}
+      {/* Nova compra */}
       <div style={styles.card}>
         <h3>Nova compra</h3>
 
         {error && <div style={styles.error}>{error}</div>}
 
-        <div style={styles.formGrid}>
+        <div
+          style={{
+            ...styles.formGrid,
+            ...(isMobile && styles.formGridMobile),
+          }}
+        >
           <input
             style={styles.input}
             placeholder="Descrição"
@@ -207,7 +194,10 @@ export default function Purchases({ onLogout, setPage, page }) {
           />
 
           <button
-            style={styles.primaryButton}
+            style={{
+              ...styles.primaryButton,
+              ...(isMobile && styles.fullWidthButton),
+            }}
             onClick={handleCreate}
             disabled={loading}
           >
@@ -216,7 +206,7 @@ export default function Purchases({ onLogout, setPage, page }) {
         </div>
       </div>
 
-      {/* 📋 Lista */}
+      {/* Lista */}
       <div style={styles.card}>
         <h3>Minhas compras</h3>
 
@@ -224,14 +214,16 @@ export default function Purchases({ onLogout, setPage, page }) {
           <p style={styles.empty}>Nenhuma compra cadastrada</p>
         ) : (
           purchases.map((p) => (
-            <div key={p.id} style={styles.purchaseItem}>
+            <div
+              key={p.id}
+              style={isMobile ? styles.purchaseColumn : styles.purchaseItem}
+            >
               <div>
                 <div style={styles.title}>{p.description}</div>
 
                 <div style={styles.meta}>
-                  {formatMoney(p.totalAmount)} • {p.installments}x de{" "}
-                  {formatMoney(p.totalAmount / p.installments)} • {" data referência parcela  "}
-                  { formatDate(p.purchaseDate) }
+                  {formatMoney(p.totalAmount)} • {p.installments}x •{" "}
+                  {formatDate(p.purchaseDate)}
                 </div>
               </div>
 
@@ -274,11 +266,14 @@ const styles = {
     marginTop: "10px",
   },
 
+  formGridMobile: {
+    gridTemplateColumns: "1fr",
+  },
+
   input: {
     padding: "10px",
     borderRadius: "8px",
     border: "1px solid #ddd",
-    fontSize: "14px",
   },
 
   inputSmall: {
@@ -286,7 +281,6 @@ const styles = {
     borderRadius: "8px",
     border: "1px solid #ddd",
     textAlign: "center",
-    fontSize: "14px",
   },
 
   primaryButton: {
@@ -296,7 +290,10 @@ const styles = {
     padding: "10px 16px",
     borderRadius: "8px",
     cursor: "pointer",
-    fontWeight: "500",
+  },
+
+  fullWidthButton: {
+    width: "100%",
   },
 
   purchaseItem: {
@@ -307,9 +304,16 @@ const styles = {
     borderBottom: "1px solid #eee",
   },
 
+  purchaseColumn: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+    padding: "12px 0",
+    borderBottom: "1px solid #eee",
+  },
+
   title: {
     fontWeight: "600",
-    fontSize: "15px",
   },
 
   meta: {
@@ -321,7 +325,7 @@ const styles = {
     backgroundColor: "#ef4444",
     color: "#fff",
     border: "none",
-    padding: "6px 10px",
+    padding: "8px 12px",
     borderRadius: "6px",
     cursor: "pointer",
   },
@@ -331,12 +335,10 @@ const styles = {
     color: "#991b1b",
     padding: "8px",
     borderRadius: "6px",
-    fontSize: "13px",
     marginBottom: "10px",
   },
 
   empty: {
     color: "#6b7280",
-    fontSize: "14px",
   },
 };

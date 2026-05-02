@@ -23,8 +23,9 @@ export default function Invoices({ onLogout, setPage, page }) {
   const [editValue, setEditValue] = useState("");
   const [editStatus, setEditStatus] = useState("OPEN");
 
-  const [suggested, setSuggested] = useState(null);
   const [error, setError] = useState("");
+
+  const isMobile = window.innerWidth < 640;
 
   const months = [
     { value: "01", label: "Jan" },
@@ -78,12 +79,12 @@ export default function Invoices({ onLogout, setPage, page }) {
     let v = value.replace(/\D/g, "");
     const number = Number(v) / 100;
 
-    const formatted = number.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
-
-    setter(formatted);
+    setter(
+      number.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      })
+    );
   };
 
   const parseCurrency = (value) =>
@@ -187,7 +188,7 @@ export default function Invoices({ onLogout, setPage, page }) {
 
         {error && <div style={styles.error}>{error}</div>}
 
-        <div style={styles.formGrid}>
+        <div style={{ ...styles.formGrid, ...(isMobile && styles.formGridMobile) }}>
           <select style={styles.input} value={cardId} onChange={(e) => setCardId(e.target.value)}>
             <option value="">Cartão</option>
             {cards.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -214,9 +215,9 @@ export default function Invoices({ onLogout, setPage, page }) {
         </div>
       </div>
 
-      {/* Filtros */}
+      {/* 🔥 FILTROS (RESTAURADOS + RESPONSIVOS) */}
       <div style={styles.card}>
-        <div style={styles.filterRow}>
+        <div style={isMobile ? styles.filterColumn : styles.filterRow}>
           <select style={styles.input} value={filterYear} onChange={(e) => setFilterYear(e.target.value)}>
             <option value="">Todos os anos</option>
             {years.map((y) => <option key={y}>{y}</option>)}
@@ -227,10 +228,13 @@ export default function Invoices({ onLogout, setPage, page }) {
             {cards.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
 
-          <button style={styles.clearButton} onClick={() => {
-            setFilterYear("");
-            setFilterCard("");
-          }}>
+          <button
+            style={styles.clearButton}
+            onClick={() => {
+              setFilterYear("");
+              setFilterCard("");
+            }}
+          >
             Limpar
           </button>
         </div>
@@ -244,7 +248,7 @@ export default function Invoices({ onLogout, setPage, page }) {
           {filteredInvoices.map((inv) => (
             <li key={inv.id} style={styles.listItem}>
               {editingId === inv.id ? (
-                <div style={styles.editRow}>
+                <div style={isMobile ? styles.editColumn : styles.editRow}>
                   <input
                     style={styles.input}
                     value={editValue}
@@ -266,7 +270,7 @@ export default function Invoices({ onLogout, setPage, page }) {
                   </button>
                 </div>
               ) : (
-                <div style={styles.viewRow}>
+                <div style={isMobile ? styles.viewColumn : styles.viewRow}>
                   <div>
                     <strong>
                       {formatMonth(inv.referenceDate)} •{" "}
@@ -308,8 +312,9 @@ const styles = {
     gridTemplateColumns: "2fr 0.8fr 1fr 1.5fr auto",
     gap: "10px",
     alignItems: "center",
-    marginTop: "10px",
   },
+
+  formGridMobile: { gridTemplateColumns: "1fr" },
 
   input: { padding: "10px", borderRadius: "8px", border: "1px solid #ddd" },
   inputSmall: { padding: "10px", borderRadius: "8px", border: "1px solid #ddd", textAlign: "center" },
@@ -318,12 +323,16 @@ const styles = {
   clearButton: { background: "#e5e7eb", border: "none", padding: "6px 10px", borderRadius: "6px" },
 
   filterRow: { display: "flex", gap: "10px" },
+  filterColumn: { display: "flex", flexDirection: "column", gap: "10px" },
 
   list: { listStyle: "none", padding: 0 },
   listItem: { padding: "10px 0", borderBottom: "1px solid #eee" },
 
   viewRow: { display: "flex", justifyContent: "space-between", alignItems: "center" },
+  viewColumn: { display: "flex", flexDirection: "column", gap: "10px" },
+
   editRow: { display: "flex", gap: "10px", alignItems: "center" },
+  editColumn: { display: "flex", flexDirection: "column", gap: "10px" },
 
   actions: { display: "flex", gap: "8px" },
 

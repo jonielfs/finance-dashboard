@@ -11,3 +11,8 @@
 
 ### Changed
 - Adicionada data de referência da parcela na lista de compras
+
+## [1.0.2] - 2026-05-02
+
+### Changed
+- Ajustes de responsividade para dispositivos móveis

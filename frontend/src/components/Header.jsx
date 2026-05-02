@@ -1,59 +1,42 @@
 export default function Header({ title, onLogout, onNavigate, page }) {
   const version = import.meta.env.VITE_APP_VERSION;
 
+  const navItems = [
+    ["dashboard", "Dashboard"],
+    ["cards", "Cartões"],
+    ["invoices", "Faturas"],
+    ["goal", "Meta"],
+    ["purchases", "Compras"],
+  ];
+
   return (
     <div style={styles.header}>
       
-      <div style={styles.left}>
+      <div style={styles.topRow}>
         <div style={styles.titleRow}>
           <h1 style={styles.title}>{title}</h1>
           <span style={styles.version}>v{version}</span>
         </div>
 
         {onLogout && (
-          <div style={styles.nav}>
-            <button
-              style={page === "dashboard" ? styles.navButtonActive : styles.navButton}
-              onClick={() => onNavigate("dashboard")}
-            >
-              Dashboard
-            </button>
-
-            <button
-              style={page === "cards" ? styles.navButtonActive : styles.navButton}
-              onClick={() => onNavigate("cards")}
-            >
-              Cartões
-            </button>
-
-            <button
-              style={page === "invoices" ? styles.navButtonActive : styles.navButton}
-              onClick={() => onNavigate("invoices")}
-            >
-              Faturas
-            </button>
-
-            <button
-              style={page === "goal" ? styles.navButtonActive : styles.navButton}
-              onClick={() => onNavigate("goal")}
-            >
-              Meta
-            </button>
-
-            <button
-              style={page === "purchases" ? styles.navButtonActive : styles.navButton}
-              onClick={() => onNavigate("purchases")}
-            >
-              Compras
-            </button>
-          </div>
+          <button style={styles.logoutButton} onClick={onLogout}>
+            Sair
+          </button>
         )}
       </div>
 
       {onLogout && (
-        <button style={styles.button} onClick={onLogout}>
-          Sair
-        </button>
+        <div style={styles.nav}>
+          {navItems.map(([key, label]) => (
+            <button
+              key={key}
+              style={page === key ? styles.navButtonActive : styles.navButton}
+              onClick={() => onNavigate(key)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       )}
     </div>
   );
@@ -62,27 +45,30 @@ export default function Header({ title, onLogout, onNavigate, page }) {
 const styles = {
   header: {
     display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "24px",
+    flexDirection: "column", // 🔥 mobile-first real
+    gap: "12px",
+    marginBottom: "20px",
     width: "100%",
   },
 
-  left: {
+  topRow: {
     display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-start",
-    gap: "6px",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: "10px",
+    flexWrap: "wrap",
   },
 
   titleRow: {
     display: "flex",
     alignItems: "center",
-    gap: "10px",
+    gap: "8px",
+    flexWrap: "wrap",
   },
 
   title: {
     margin: 0,
+    fontSize: "clamp(18px, 5vw, 24px)",
   },
 
   version: {
@@ -95,35 +81,41 @@ const styles = {
 
   nav: {
     display: "flex",
+    flexWrap: "wrap", // 🔥 ESSENCIAL
     gap: "8px",
   },
 
   navButton: {
     backgroundColor: "#e5e7eb",
     border: "none",
-    padding: "6px 12px",
-    borderRadius: "6px",
+    padding: "10px 12px",
+    borderRadius: "8px",
     cursor: "pointer",
-    fontSize: "14px",
+    fontSize: "13px",
+    flex: "1 1 auto", // 🔥 distribui melhor no mobile
   },
 
   navButtonActive: {
     backgroundColor: "#3b82f6",
     color: "#fff",
     border: "none",
-    padding: "6px 12px",
-    borderRadius: "6px",
+    padding: "10px 12px",
+    borderRadius: "8px",
     cursor: "pointer",
-    fontSize: "14px",
+    fontSize: "13px",
+    flex: "1 1 auto",
   },
 
-  button: {
+  logoutButton: {
     backgroundColor: "#ef4444",
     color: "#fff",
     border: "none",
-    padding: "8px 16px",
+    padding: "10px 14px",
     borderRadius: "8px",
     cursor: "pointer",
     fontWeight: "bold",
+    fontSize: "14px",
+    minHeight: "40px",
+    whiteSpace: "nowrap",
   },
 };
