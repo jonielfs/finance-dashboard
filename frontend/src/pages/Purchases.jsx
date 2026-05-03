@@ -1,18 +1,21 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../services/api";
 import Header from "../components/Header";
-import { formatMoney, formatDate } from "../utils/format";
+import { formatMoney, formatMonth } from "../utils/format";
 
 export default function Purchases({ onLogout, setPage, page }) {
   const [purchases, setPurchases] = useState([]);
   const [cards, setCards] = useState([]);
+
+  const now = new Date();
+  const defaultMonth = `${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`;
 
   const [form, setForm] = useState({
     description: "",
     totalAmount: "",
     installments: 1,
     cardId: "",
-    purchaseDate: "",
+    startMonth: defaultMonth,
   });
 
   const [loading, setLoading] = useState(false);
@@ -39,21 +42,16 @@ export default function Purchases({ onLogout, setPage, page }) {
         .replace(/\./g, "")
         .replace(",", ".")
         .trim()
-    );
+  );
 
-  const handleDateChange = (value) => {
+  const handleMonthChange = (value) => {
     let v = value.replace(/\D/g, "");
 
-    if (v.length > 2) v = v.replace(/^(\d{2})(\d)/, "$1/$2");
-    if (v.length > 5) v = v.replace(/^(\d{2})\/(\d{2})(\d)/, "$1/$2/$3");
+    if (v.length > 2) {
+      v = v.replace(/^(\d{2})(\d)/, "$1/$2");
+    }
 
-    setForm({ ...form, purchaseDate: v.slice(0, 10) });
-  };
-
-  const parseDate = (dateStr) => {
-    if (!dateStr) return new Date();
-    const [day, month, year] = dateStr.split("/");
-    return new Date(`${year}-${month}-${day}T00:00:00`);
+    setForm({ ...form, startMonth: v.slice(0, 7) });
   };
 
   const load = async () => {
@@ -75,11 +73,30 @@ export default function Purchases({ onLogout, setPage, page }) {
     load();
   }, []);
 
+  const parseMonth = (monthStr) => {
+    if (!monthStr) return null;
+
+    const [month, year] = monthStr.split("/");
+    return `${year}-${month}`;
+  };
+
+  const isValidMonth = (monthStr) => {
+    const [month, year] = monthStr.split("/");
+    const m = Number(month);
+
+    return m >= 1 && m <= 12 && year?.length === 4;
+  };
+
   const handleCreate = async () => {
     setError("");
 
     if (!form.description || !form.totalAmount || !form.installments || !form.cardId) {
       setError("Preencha todos os campos");
+      return;
+    }
+
+    if (!isValidMonth(form.startMonth)) {
+      setError("Mês inválido");
       return;
     }
 
@@ -93,7 +110,7 @@ export default function Purchases({ onLogout, setPage, page }) {
           totalAmount: parseCurrency(form.totalAmount),
           installments: Number(form.installments),
           cardId: Number(form.cardId),
-          purchaseDate: parseDate(form.purchaseDate),
+          startMonth: parseMonth(form.startMonth),
         }),
       });
 
@@ -102,7 +119,7 @@ export default function Purchases({ onLogout, setPage, page }) {
         totalAmount: "",
         installments: 1,
         cardId: "",
-        purchaseDate: "",
+        startMonth: defaultMonth,
       });
 
       await load();
@@ -188,9 +205,9 @@ export default function Purchases({ onLogout, setPage, page }) {
 
           <input
             style={styles.input}
-            placeholder="Data (dd/mm/aaaa)"
-            value={form.purchaseDate}
-            onChange={(e) => handleDateChange(e.target.value)}
+            placeholder="Mês 1ª Parcela (MM/AAAA)"
+            value={form.startMonth}
+            onChange={(e) => handleMonthChange(e.target.value)}
           />
 
           <button
@@ -223,7 +240,7 @@ export default function Purchases({ onLogout, setPage, page }) {
 
                 <div style={styles.meta}>
                   {formatMoney(p.totalAmount)} • {p.installments}x •{" "}
-                  {formatDate(p.purchaseDate)}
+                  {formatMonth(p.startMonth)}
                 </div>
               </div>
 

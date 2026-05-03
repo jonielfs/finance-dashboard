@@ -7,3 +7,12 @@ export const formatMoney = (value) =>
 export const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString("pt-BR");
 };
+
+export const formatMonth = (dateStr) => {
+  if (!dateStr) return "";
+
+  // pega só a parte da data (sem timezone)
+  const [year, month] = dateStr.split("T")[0].split("-");
+
+  return `${month}/${year}`;
+};

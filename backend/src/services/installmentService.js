@@ -14,13 +14,13 @@ exports.generateInstallments = (total, n, startDate) => {
   for (let i = 1; i <= n; i++) {
     const dueDate = new Date(Date.UTC(
       baseYear,
-      baseMonth + i,
+      baseMonth + (i - 1), // ✅ mudança aqui
       1
     ));
 
     let amount = installmentValue;
 
-    // 🧠 última parcela ajusta diferença
+    // última parcela ajusta diferença
     if (i === n) {
       amount = Number((totalValue - accumulated).toFixed(2));
     }

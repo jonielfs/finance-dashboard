@@ -1,15 +1,21 @@
 const prisma = require("../prisma");
 const { generateInstallments } = require("../services/installmentService");
 
+function parseStartMonth(startMonthStr) {
+  if (!startMonthStr) return new Date(); // fallback (segurança)
+
+  const [year, month] = startMonthStr.split("-");
+  return new Date(Number(year), Number(month) - 1, 1);
+}
+
 exports.createPurchase = async (req, res) => {
   try {
-    const { description, totalAmount, installments, purchaseDate, cardId } = req.body;
+    const { description, totalAmount, installments, startMonth, cardId } = req.body;
 
     if (!description || !totalAmount || !installments || !cardId) {
       return res.status(400).json({ error: "Dados obrigatórios" });
     }
 
-    // 🔐 Validar cartão do usuário
     const card = await prisma.creditCard.findFirst({
       where: {
         id: Number(cardId),
@@ -21,10 +27,12 @@ exports.createPurchase = async (req, res) => {
       return res.status(404).json({ error: "Cartão não encontrado" });
     }
 
+    const parsedStartMonth = parseStartMonth(startMonth);
+
     const installmentsData = generateInstallments(
       Number(totalAmount),
       Number(installments),
-      purchaseDate
+      parsedStartMonth
     );
 
     const purchase = await prisma.purchase.create({
@@ -32,7 +40,7 @@ exports.createPurchase = async (req, res) => {
         description,
         totalAmount: Number(totalAmount),
         installments: Number(installments),
-        purchaseDate: purchaseDate ? new Date(purchaseDate) : new Date(),
+        startMonth: parsedStartMonth,
         cardId: Number(cardId),
         installmentsList: {
           create: installmentsData,
@@ -70,7 +78,7 @@ exports.getPurchases = async (req, res) => {
         installmentsList: true,
       },
       orderBy: {
-        purchaseDate: "desc", // 👈 importante (mais recente primeiro)
+        startMonth: "desc", // 👈 importante (mais recente primeiro)
       },
     });
 
