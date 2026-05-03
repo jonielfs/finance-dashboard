@@ -55,17 +55,73 @@ const styles = {
   }),
 };
 
+const loadingStyles = {
+  wrapper: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "80vh",
+    textAlign: "center",
+  },
+
+  // 🔥 WRAPPER QUE GIRA
+  logoWrapper: {
+    width: "60px",
+    height: "60px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    animation: "spin 7s linear infinite",
+  },
+
+  // 🔥 IMAGEM INTERNA (sem animação)
+  logo: {
+    width: "100%",
+    height: "100%",
+  },
+
+  title: {
+    marginTop: "20px",
+    fontSize: "20px",
+  },
+
+  subtitle: {
+    marginTop: "10px",
+    color: "#6b7280",
+  },
+};
+
 function App() {
   const [data, setData] = useState([]);
   const [rawData, setRawData] = useState(null);
-  const [isAuth, setIsAuth] = useState(null); // 🔥 agora controlado via backend
+  const [isAuth, setIsAuth] = useState(null);
   const [page, setPage] = useState("dashboard");
+  const [isSlowLoading, setIsSlowLoading] = useState(false);
 
   // 🔐 valida sessão no carregamento
   useEffect(() => {
+    let isMounted = true;
+
+    const slowTimer = setTimeout(() => {
+      if (isMounted) setIsSlowLoading(true);
+    }, 30000);
+
     apiFetch("/protected")
-      .then(() => setIsAuth(true))
-      .catch(() => setIsAuth(false));
+      .then(() => {
+        if (isMounted) setIsAuth(true);
+      })
+      .catch(() => {
+        if (isMounted) setIsAuth(false);
+      })
+      .finally(() => {
+        clearTimeout(slowTimer);
+      });
+
+    return () => {
+      isMounted = false;
+      clearTimeout(slowTimer);
+    };
   }, []);
 
   // 📊 carrega dashboard apenas se autenticado
@@ -111,20 +167,35 @@ function App() {
     });
   }, [isAuth, page]);
 
-  // 🚪 logout via backend
+  // 🚪 logout
   const handleLogout = async () => {
     try {
       await apiFetch("/auth/logout", { method: "POST" });
     } catch {}
 
-    setIsAuth(false); // 👈 evita reload
+    setIsAuth(false);
   };
 
   // ⏳ loading inicial
   if (isAuth === null) {
     return (
       <div style={styles.container}>
-        <Skeleton />
+        <div style={loadingStyles.wrapper}>
+          {/* 🔥 AQUI ESTÁ A CORREÇÃO */}
+          <div style={loadingStyles.logoWrapper}>
+            <img src="/favicon.svg" alt="loading" style={loadingStyles.logo} />
+          </div>
+
+          <h2 style={loadingStyles.title}>
+            Carregando seu dashboard...
+          </h2>
+
+          <p style={loadingStyles.subtitle}>
+            {!isSlowLoading
+              ? "Por favor aguarde..."
+              : "Demorando mais que o esperado, mas quase lá... ☕"}
+          </p>
+        </div>
       </div>
     );
   }
@@ -205,10 +276,14 @@ function App() {
         />
 
         <div style={styles.cardGrid}>
-          <MetricCard title="Gasto do mês" value={currentMonth} color="#2563eb" />
-          <MetricCard title="Meta" value={goal} color="#dc2626" />
-          <MetricCard title="Parcelas (próx. meses)" value={open} color="#d97706" />
-          <MetricCard title="Média diária" value={Math.round(avgDaily)} color={avgColor} />
+          <MetricCard title="Gasto do mês" value={currentMonth} color="#2563eb"
+            tooltip="Soma das faturas do mês atual" />
+          <MetricCard title="Meta" value={goal} color="#dc2626"
+            tooltip="Valor máximo planejado para gasto mensal" />
+          <MetricCard title="Parcelas (próx. meses)" value={open} color="#d97706"
+            tooltip="Soma das parcelas dentro do período exibido no gráfico" />
+          <MetricCard title="Média diária" value={Math.round(avgDaily)} color={avgColor}
+            tooltip={`Gasto médio por dia. Ideal: ${formatMoney(idealDaily)}`} />
         </div>
 
         <div style={styles.alert(isOver)}>

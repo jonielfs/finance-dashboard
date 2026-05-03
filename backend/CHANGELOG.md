@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.7] - 2026-05-03
+
+### Added
+- Adicionado loading para requisições mais demoradas ou redes mais lentas.
+
 ## [1.0.6] - 2026-05-03
 
 ### Changed
