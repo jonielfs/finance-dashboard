@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.8] - 2026-05-04
+
+### Changed
+- Alterada ordem dos itens de menu para ficar ordanado dos mais para os menos utilizados e eliminada a redundância de CHANGELOG.
+
 ## [1.0.7] - 2026-05-03
 
 ### Added

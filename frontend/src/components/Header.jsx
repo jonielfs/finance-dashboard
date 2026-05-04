@@ -3,10 +3,10 @@ export default function Header({ title, onLogout, onNavigate, page }) {
 
   const navItems = [
     ["dashboard", "Dashboard"],
-    ["cards", "Cartões"],
     ["invoices", "Faturas"],
-    ["goal", "Meta"],
     ["purchases", "Compras"],
+    ["cards", "Cartões"],
+    ["goal", "Meta"],
   ];
 
   return (

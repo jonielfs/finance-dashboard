@@ -280,7 +280,7 @@ function App() {
             tooltip="Soma das faturas do mês atual" />
           <MetricCard title="Meta" value={goal} color="#dc2626"
             tooltip="Valor máximo planejado para gasto mensal" />
-          <MetricCard title="Parcelas (próx. meses)" value={open} color="#d97706"
+          <MetricCard title="Parcelas a pagar" value={open} color="#d97706"
             tooltip="Soma das parcelas dentro do período exibido no gráfico" />
           <MetricCard title="Média diária" value={Math.round(avgDaily)} color={avgColor}
             tooltip={`Gasto médio por dia. Ideal: ${formatMoney(idealDaily)}`} />
