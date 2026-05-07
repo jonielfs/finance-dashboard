@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.9] - 2026-05-07
+
+### Changed
+- Pequenos ajuste com tratamentos de erro quando a navegação ocorre com o token expirado.
+
 ## [1.0.8] - 2026-05-04
 
 ### Changed
