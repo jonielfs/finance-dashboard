@@ -239,8 +239,8 @@ export default function Purchases({ onLogout, setPage, page }) {
                 <div style={styles.title}>{p.description}</div>
 
                 <div style={styles.meta}>
-                  {formatMoney(p.totalAmount)} • {p.installments}x •{" "}
-                  {formatMonth(p.startMonth)}
+                  {formatMoney(p.totalAmount)} • {formatMoney(p.installmentsList[0].amount)} 
+                  {" "} x {" "} {p.installments} •{" "} {formatMonth(p.startMonth)}
                 </div>
               </div>
 

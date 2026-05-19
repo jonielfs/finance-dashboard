@@ -12,7 +12,7 @@ export default function Login({ setPage }) {
     setError("");
 
     if (!email || !password) {
-      setError("Preencha email e senha");
+      setError("Preencha usuário e senha");
       return;
     }
 
@@ -28,7 +28,7 @@ export default function Login({ setPage }) {
         localStorage.setItem("token", data.token);
         window.location.href = "/";
       } else {
-        setError("Email ou senha inválidos");
+        setError("Usuário ou senha inválidos");
       }
     } catch (err) {
       setError(err.message || "Erro ao conectar com o servidor");
@@ -50,6 +50,11 @@ export default function Login({ setPage }) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           autoFocus
+          onKeyDown={(e) => {
+            if (e.key === "Enter")
+                handleLogin();
+            }
+          }
         />
 
         <input
@@ -58,6 +63,11 @@ export default function Login({ setPage }) {
           placeholder="Senha"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter")
+                handleLogin();
+            }
+          }
         />
 
         <button

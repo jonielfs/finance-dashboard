@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.10] - 2026-05-19
+
+### Changed
+- Tecla enter acionando botão de login e valor parcela sendo exibida na listagem de compras.
+
 ## [1.0.9] - 2026-05-07
 
 ### Changed
