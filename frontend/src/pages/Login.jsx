@@ -31,7 +31,7 @@ export default function Login({ setPage }) {
         setError("Usuário ou senha inválidos");
       }
     } catch (err) {
-      setError(err.message || "Erro ao conectar com o servidor");
+      setError(err.message);
     } finally {
       setLoading(false);
     }

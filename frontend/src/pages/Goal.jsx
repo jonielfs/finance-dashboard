@@ -19,8 +19,7 @@ export default function Goal({ onLogout, setPage, page }) {
         setValue(data.value);
       }
     } catch (err) {
-      console.error(err);
-      setError("Erro ao carregar meta");
+      setError(err.message);
     }
   };
 
@@ -50,8 +49,7 @@ export default function Goal({ onLogout, setPage, page }) {
       await loadGoal();
 
     } catch (err) {
-      console.error(err);
-      setError("Erro ao salvar meta");
+      setError(err.message);
     } finally {
       setLoading(false);
     }

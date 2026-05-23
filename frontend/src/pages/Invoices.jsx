@@ -135,8 +135,8 @@ export default function Invoices({ onLogout, setPage, page }) {
 
       setTotalAmount("");
       loadInvoices();
-    } catch {
-      setError("Erro ao criar fatura");
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -148,8 +148,8 @@ export default function Invoices({ onLogout, setPage, page }) {
     try {
       await apiFetch(`/invoices/${id}`, { method: "DELETE" });
       loadInvoices();
-    } catch {
-      setError("Erro ao deletar fatura");
+    } catch (err) {
+      setError(err.message);
     } finally {
       setDeletingId(null);
     }
@@ -173,8 +173,8 @@ export default function Invoices({ onLogout, setPage, page }) {
 
       setEditingId(null);
       loadInvoices();
-    } catch {
-      setError("Erro ao atualizar fatura");
+    } catch (err) {
+      setError(err.message);
     }
   };
 

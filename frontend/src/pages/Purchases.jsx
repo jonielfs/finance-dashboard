@@ -64,8 +64,7 @@ export default function Purchases({ onLogout, setPage, page }) {
       setPurchases(purchasesData);
       setCards(cardsData);
     } catch (err) {
-      console.error(err);
-      setError("Erro ao carregar dados");
+      setError(err.message);
     }
   };
 
@@ -124,8 +123,7 @@ export default function Purchases({ onLogout, setPage, page }) {
 
       await load();
     } catch (err) {
-      console.error(err);
-      setError("Erro ao criar compra");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -138,7 +136,7 @@ export default function Purchases({ onLogout, setPage, page }) {
       await apiFetch(`/purchases/${id}`, { method: "DELETE" });
       load();
     } catch (err) {
-      setError("Erro ao deletar compra");
+      setError(err.message);
     }
   };
 

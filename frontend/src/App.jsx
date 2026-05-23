@@ -332,8 +332,12 @@ function App() {
     const avgDaily =
       dayOfMonth > 0 ? currentMonth / dayOfMonth : 0;
 
+    const remainingGoal = Math.max(goal - currentMonth, 0);
+
+    const remainingDays = Math.max(daysInMonth - dayOfMonth, 1);
+
     const idealDaily =
-      goal > 0 ? goal / daysInMonth : 0;
+      remainingGoal / remainingDays;
 
     const isAboveIdeal = avgDaily > idealDaily;
 
