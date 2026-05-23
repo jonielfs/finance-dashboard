@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.0] - 2026-05-23
+
+### Changed
+- Exibidas mensagens de erro vindas do backend ao invés de mensagens genéricas;
+- Adicionado loading para as requisições.
+
 ## [1.0.10] - 2026-05-19
 
 ### Changed

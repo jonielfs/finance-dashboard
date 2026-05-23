@@ -92,6 +92,37 @@ const loadingStyles = {
     marginTop: "10px",
     color: "#6b7280",
   },
+
+  overlay: {
+    position: "fixed",
+    inset: 0,
+    backgroundColor: "rgba(255,255,255,0.4)",
+    backdropFilter: "blur(2px)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 9999,
+  },
+
+  loadingBox: {
+    backgroundColor: "#fff",
+    padding: "16px 24px",
+    borderRadius: "12px",
+    boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    fontWeight: "500",
+  },
+
+  spinner: {
+    width: "18px",
+    height: "18px",
+    border: "3px solid #d1d5db",
+    borderTop: "3px solid #2563eb",
+    borderRadius: "50%",
+    animation: "spin 0.8s linear infinite",
+  },
 };
 
 function App() {
@@ -100,6 +131,7 @@ function App() {
   const [isAuth, setIsAuth] = useState(null);
   const [page, setPage] = useState("dashboard");
   const [isSlowLoading, setIsSlowLoading] = useState(false);
+  const [isRequestLoading, setIsRequestLoading] = useState(false);
 
   // 🔐 valida sessão no carregamento
   useEffect(() => {
@@ -131,6 +163,25 @@ function App() {
       clearTimeout(slowTimer);
     };
   }, []);
+
+  // 🌐 loading global de requests
+useEffect(() => {
+  const handleRequestChange = (e) => {
+    setIsRequestLoading(e.detail > 0);
+  };
+
+  window.addEventListener(
+    "request-change",
+    handleRequestChange
+  );
+
+  return () => {
+    window.removeEventListener(
+      "request-change",
+      handleRequestChange
+    );
+  };
+}, []);
 
   // 🔐 sessão expirada globalmente
   useEffect(() => {
@@ -218,37 +269,63 @@ function App() {
     setIsAuth(false);
   };
 
+  const globalLoadingOverlay = isRequestLoading && (
+    <div style={loadingStyles.overlay}>
+      <div style={loadingStyles.loadingBox}>
+        <div style={loadingStyles.spinner} />
+
+        <span>Carregando...</span>
+      </div>
+    </div>
+  );
+
   // ⏳ loading inicial
   if (isAuth === null) {
     return (
-      <div style={styles.container}>
-        <div style={loadingStyles.wrapper}>
-          <div style={loadingStyles.logoWrapper}>
-            <img
-              src="/favicon.svg"
-              alt="loading"
-              style={loadingStyles.logo}
-            />
+      <>
+        {globalLoadingOverlay}
+
+        <div style={styles.container}>
+          {isRequestLoading && (
+            <div style={loadingStyles.overlay}>
+              <div style={loadingStyles.loadingBox}>
+                <div style={loadingStyles.spinner} />
+
+                <span>Carregando...</span>
+              </div>
+            </div>
+          )}
+          <div style={loadingStyles.wrapper}>
+            <div style={loadingStyles.logoWrapper}>
+              <img
+                src="/favicon.svg"
+                alt="loading"
+                style={loadingStyles.logo}
+              />
+            </div>
+
+            <h2 style={loadingStyles.title}>
+              Carregando seu dashboard...
+            </h2>
+
+            <p style={loadingStyles.subtitle}>
+              {!isSlowLoading
+                ? "Por favor aguarde..."
+                : "Demorando mais que o esperado, mas quase lá... ☕"}
+            </p>
           </div>
-
-          <h2 style={loadingStyles.title}>
-            Carregando seu dashboard...
-          </h2>
-
-          <p style={loadingStyles.subtitle}>
-            {!isSlowLoading
-              ? "Por favor aguarde..."
-              : "Demorando mais que o esperado, mas quase lá... ☕"}
-          </p>
         </div>
-      </div>
+      </>
     );
   }
 
   // 🔐 não autenticado
   if (!isAuth) {
     if (page === "register") {
-      return <Register setPage={setPage} />;
+      <>
+        {globalLoadingOverlay}
+        return <Register setPage={setPage} />;
+      </>
     }
 
     return <Login setPage={setPage} />;
@@ -257,41 +334,53 @@ function App() {
   // 📄 rotas
   if (page === "cards") {
     return (
-      <Cards
-        onLogout={handleLogout}
-        setPage={setPage}
-        page={page}
-      />
+      <>
+        {globalLoadingOverlay}
+        <Cards
+          onLogout={handleLogout}
+          setPage={setPage}
+          page={page}
+        />
+      </>
     );
   }
 
   if (page === "invoices") {
     return (
-      <Invoices
-        onLogout={handleLogout}
-        setPage={setPage}
-        page={page}
-      />
+      <>
+        {globalLoadingOverlay}
+        <Invoices
+          onLogout={handleLogout}
+          setPage={setPage}
+          page={page}
+        />
+      </>
     );
   }
 
   if (page === "goal") {
     return (
-      <Goal
-        onLogout={handleLogout}
-        setPage={setPage}
-        page={page}
-      />
+      <>
+        {globalLoadingOverlay}
+        <Goal
+          onLogout={handleLogout}
+          setPage={setPage}
+          page={page}
+        />
+      </>
     );
   }
 
   if (page === "purchases") {
     return (
-      <Purchases
-        onLogout={handleLogout}
-        setPage={setPage}
-        page={page}
-      />
+      <>
+        {globalLoadingOverlay}
+        <Purchases
+          onLogout={handleLogout}
+          setPage={setPage}
+          page={page}
+        />
+      </>
     );
   }
 
@@ -299,16 +388,28 @@ function App() {
   if (page === "dashboard") {
     if (!rawData) {
       return (
-        <div style={styles.container}>
-          <Header
-            title="Dashboard Financeiro"
-            onLogout={handleLogout}
-            onNavigate={setPage}
-            page={page}
-          />
+        <>
+          {globalLoadingOverlay}
+            <div style={styles.container}>
+              {isRequestLoading && (
+                <div style={loadingStyles.overlay}>
+                  <div style={loadingStyles.loadingBox}>
+                    <div style={loadingStyles.spinner} />
 
-          <Skeleton />
-        </div>
+                    <span>Carregando...</span>
+                  </div>
+                </div>
+              )}
+              <Header
+                title="Dashboard Financeiro"
+                onLogout={handleLogout}
+                onNavigate={setPage}
+                page={page}
+              />
+
+              <Skeleton />
+            </div>
+        </>
       );
     }
 
