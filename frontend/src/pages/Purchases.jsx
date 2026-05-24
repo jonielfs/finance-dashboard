@@ -8,20 +8,37 @@ export default function Purchases({ onLogout, setPage, page }) {
   const [cards, setCards] = useState([]);
 
   const now = new Date();
-  const defaultMonth = `${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`;
 
   const [form, setForm] = useState({
     description: "",
     totalAmount: "",
     installments: 1,
     cardId: "",
-    startMonth: defaultMonth,
+    startMonth: "",
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [focusedField, setFocusedField] = useState("");
 
   const isMobile = window.innerWidth < 640;
+
+  const fieldHelp = {
+    description:
+      "Descrição da compra que será exibida nas parcelas.",
+
+    totalAmount:
+      "Valor total da compra parcelada.",
+
+    installments:
+      "Quantidade de parcelas da compra.",
+
+    cardId:
+      "Cartão utilizado na compra.",
+
+    startMonth:
+      "Mês de vencimento da primeira parcela no formato (MM/AAAA).",
+  };
 
   const handleCurrencyChange = (value, setter) => {
     let v = value.replace(/\D/g, "");
@@ -118,7 +135,7 @@ export default function Purchases({ onLogout, setPage, page }) {
         totalAmount: "",
         installments: 1,
         cardId: "",
-        startMonth: defaultMonth,
+        startMonth: "",
       });
 
       await load();
@@ -163,6 +180,12 @@ export default function Purchases({ onLogout, setPage, page }) {
             onChange={(e) =>
               setForm({ ...form, description: e.target.value })
             }
+            onFocus={() =>
+              setFocusedField("description")
+            }
+            onBlur={() =>
+              setFocusedField("")
+            }
           />
 
           <input
@@ -174,6 +197,12 @@ export default function Purchases({ onLogout, setPage, page }) {
                 setForm({ ...form, totalAmount: val })
               )
             }
+            onFocus={() =>
+              setFocusedField("totalAmount")
+            }
+            onBlur={() =>
+              setFocusedField("")
+            }
           />
 
           <input
@@ -184,6 +213,12 @@ export default function Purchases({ onLogout, setPage, page }) {
             onChange={(e) =>
               setForm({ ...form, installments: e.target.value })
             }
+            onFocus={() =>
+              setFocusedField("installments")
+            }
+            onBlur={() =>
+              setFocusedField("")
+            }
           />
 
           <select
@@ -191,6 +226,12 @@ export default function Purchases({ onLogout, setPage, page }) {
             value={form.cardId}
             onChange={(e) =>
               setForm({ ...form, cardId: e.target.value })
+            }
+            onFocus={() =>
+              setFocusedField("cardId")
+            }
+            onBlur={() =>
+              setFocusedField("")
             }
           >
             <option value="">Cartão</option>
@@ -206,6 +247,12 @@ export default function Purchases({ onLogout, setPage, page }) {
             placeholder="Mês 1ª Parcela (MM/AAAA)"
             value={form.startMonth}
             onChange={(e) => handleMonthChange(e.target.value)}
+            onFocus={() =>
+              setFocusedField("startMonth")
+            }
+            onBlur={() =>
+              setFocusedField("")
+            }
           />
 
           <button
@@ -219,6 +266,11 @@ export default function Purchases({ onLogout, setPage, page }) {
             {loading ? "Adicionando..." : "Adicionar"}
           </button>
         </div>
+
+        <div style={styles.fieldHelp}>
+          {fieldHelp[focusedField] || "\u00A0"}
+        </div>
+        
       </div>
 
       {/* Lista */}
@@ -275,7 +327,7 @@ const styles = {
 
   formGrid: {
     display: "grid",
-    gridTemplateColumns: "2fr 1fr 0.6fr 1fr 1.2fr auto",
+    gridTemplateColumns: "2fr 1fr 0.5fr 1fr 0.8fr auto",
     gap: "10px",
     alignItems: "center",
     marginTop: "10px",
@@ -355,5 +407,12 @@ const styles = {
 
   empty: {
     color: "#6b7280",
+  },
+
+  fieldHelp: {
+    marginTop: "10px",
+    fontSize: "13px",
+    color: "#6b7280",
+    paddingLeft: "4px",
   },
 };

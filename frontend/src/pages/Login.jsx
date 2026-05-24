@@ -49,6 +49,9 @@ export default function Login({ setPage }) {
           placeholder="Usuário"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
           autoFocus
           onKeyDown={(e) => {
             if (e.key === "Enter")

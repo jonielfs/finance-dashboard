@@ -41,11 +41,18 @@ export const apiFetch = async (
 
     // 🔐 sessão expirada
     if (res.status === 401) {
-      window.dispatchEvent(
-        new Event("auth-expired")
-      );
+      const isLoginRoute =
+        endpoint.includes("/auth/login");
 
-      throw new Error("Sessão expirada");
+      if (!isLoginRoute) {
+        window.dispatchEvent(
+          new Event("auth-expired")
+        );
+      }
+
+      throw new Error(
+        data.error || "Sessão expirada"
+      );
     }
 
     if (!res.ok) {
