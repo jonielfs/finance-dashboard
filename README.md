@@ -166,7 +166,7 @@ npm run dev
 
 ## 📌 Versão
 
-Versão atual: **1.1.1**
+Versão atual: **1.1.2**
 
 ---
 
@@ -178,4 +178,4 @@ Joniel Fernandes
 
 ## 🚧 Em futuras atualizações
 
-* Incrementar versão aqui, no package.json e na variável de ambiente do front
+* Incrementar versão aqui, nos package.json e na variável de ambiente do front

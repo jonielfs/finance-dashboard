@@ -321,14 +321,19 @@ useEffect(() => {
 
   // 🔐 não autenticado
   if (!isAuth) {
+    
     if (page === "register") {
-      <>
-        {globalLoadingOverlay}
-        return <Register setPage={setPage} />;
-      </>
-    }
+      return (
+        <>
+          {globalLoadingOverlay}
+
+          <Register setPage={setPage} />
+        </>
+      );
+    } 
 
     return <Login setPage={setPage} />;
+
   }
 
   // 📄 rotas
@@ -487,7 +492,7 @@ useEffect(() => {
 
           <MetricCard
             title="Média diária"
-            value={Math.round(avgDaily)}
+            value={avgDaily}
             color={avgColor}
             tooltip={`Gasto médio por dia. Ideal: ${formatMoney(idealDaily)}`}
           />

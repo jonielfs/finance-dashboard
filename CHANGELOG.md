@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.2] - 2026-06-02
+
+### Changed
+- Ajuste na exibição do valor de média de gastos.
+
 ## [1.1.1] - 2026-05-24
 
 ### Changed
