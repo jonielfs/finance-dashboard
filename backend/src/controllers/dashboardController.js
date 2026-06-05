@@ -174,6 +174,20 @@ exports.getHistory = async (req, res) => {
       (m) => Number(installmentsByMonth[m] || 0)
     );
 
+    const openCommitments = Object.entries(
+      installmentsByMonth
+    ).reduce((sum, [month, amount]) => {
+
+      const status =
+        invoiceStatusMap[month] || "OPEN";
+
+      if (status !== "PAID") {
+        return sum + Number(amount);
+      }
+
+      return sum;
+    }, 0);
+
     // 🎯 meta única
     const goal = await prisma.goal.findUnique({
       where: { userId },
@@ -187,6 +201,7 @@ exports.getHistory = async (req, res) => {
       months,
       totals,
       commitments,
+      openCommitments,
       goals: goalLine,
       avg: avgLine,
       currentMonthKey,

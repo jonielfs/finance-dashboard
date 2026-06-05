@@ -451,10 +451,7 @@ useEffect(() => {
       ? "#dc2626"
       : "#16a34a";
 
-    const open = rawData.commitments.reduce(
-      (sum, v) => sum + v,
-      0
-    );
+    const open = rawData.openCommitments || 0;
 
     const isOver =
       goal > 0 && currentMonth > goal;
@@ -477,7 +474,14 @@ useEffect(() => {
           />
 
           <MetricCard
-            title="Meta"
+            title="Média diária"
+            value={avgDaily}
+            color={avgColor}
+            tooltip={`Gasto médio por dia. Ideal: ${formatMoney(idealDaily)}`}
+          />
+
+          <MetricCard
+            title="Meta mensal"
             value={goal}
             color="#dc2626"
             tooltip="Valor máximo planejado para gasto mensal"
@@ -487,14 +491,7 @@ useEffect(() => {
             title="Parcelas a pagar"
             value={open}
             color="#d97706"
-            tooltip="Soma das parcelas dentro do período exibido no gráfico"
-          />
-
-          <MetricCard
-            title="Média diária"
-            value={avgDaily}
-            color={avgColor}
-            tooltip={`Gasto médio por dia. Ideal: ${formatMoney(idealDaily)}`}
+            tooltip="Soma das parcelas em aberto (incluindo os meses fora da janela do gráfico)"
           />
         </div>
 
